@@ -126,5 +126,7 @@
   }
   html {
     @apply font-sans;
+    /* Base maior (100% -> 112.5%) para melhorar a legibilidade. */
+    font-size: 112.5%;
   }
 }
