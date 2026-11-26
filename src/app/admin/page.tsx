@@ -1,8 +1,5 @@
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { SiteHeader } from "@/components/site-header";
-import { auth } from "@/lib/auth";
-import { AdminPanel } from "./admin-panel";
+import { requireAdmin } from "@/lib/admin";
 
 export const metadata = { title: "Administração" };
 
@@ -10,26 +7,8 @@ export const metadata = { title: "Administração" };
 export const instant = false;
 
 export default async function AdminPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  await requireAdmin();
 
-  if (!session || session.user.role !== "admin") {
-    redirect("/sign-in");
-  }
-
-  return (
-    <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-black">
-      <SiteHeader
-        user={{
-          name: session.user.name,
-          email: session.user.email,
-          role: session.user.role,
-        }}
-        current="admin"
-      />
-      <AdminPanel
-        adminId={session.user.id}
-        adminName={session.user.name}
-      />
-    </div>
-  );
+  // Perfil admin: a lista de usuários é a tela inicial.
+  redirect("/admin/usuarios");
 }

@@ -50,21 +50,26 @@ O cadastro público está desabilitado (`emailAndPassword.disableSignUp`). O see
 e-mail a admin **e** sincroniza a senha com `ADMIN_PASSWORD` (a senha fica na
 tabela `account`, não em `user`). A senha inicial está no `.env`.
 
-Somente um admin autenticado pode gerenciar contas:
+Somente um admin autenticado pode gerenciar contas (rotas protegidas no
+servidor pelo role `admin`, via `requireAdmin()`):
 
-- Página `/admin` (protegida no servidor pelo role `admin`) — header com navegação,
-  formulário de criação e lista de usuários com redefinição de senha.
+- `/admin` redireciona para `/admin/usuarios`.
+- `/admin/usuarios` — tela com a lista de usuários (nome, e-mail, perfil),
+  botão **Registrar usuário** e atualização da lista.
+- `/admin/usuarios/novo` — tela de registro de usuário; a conta é criada como
+  perfil comum (`role: "user"`) e senha inicial.
 - API `POST /api/auth/admin/create-user` — exige sessão com permissão `user:create`.
 - API `POST /api/auth/admin/set-user-password` — exige sessão com permissão
   `user:set-password`.
 
-Na lista de usuários, o botão **Alterar senha** abre um formulário inline com
-nova senha e confirmação. A validação usa `changePasswordSchema` (Zod) e a
-alteração é feita pelo plugin `admin()` do Better Auth.
+Na lista de usuários, o botão **Alterar senha** abre um **dialog** com nova
+senha e confirmação. A validação usa `changePasswordSchema` (Zod) e a
+alteração é feita pelo plugin `admin()` do Better Auth. O registro de usuário
+usa `createUserSchema` (Zod).
 
 Rotas de autenticação: `/api/auth/[...all]` (ex.: `GET /api/auth/ok`).
-Páginas: `/sign-in` e `/admin`. A home usa TanStack Query para consultar
-`/api/auth/get-session`.
+Páginas: `/sign-in`, `/admin`, `/admin/usuarios`, `/admin/usuarios/novo`.
+A home usa TanStack Query para consultar `/api/auth/get-session`.
 
 ## Outros comandos
 
