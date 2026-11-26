@@ -15,6 +15,7 @@ let server: ReturnType<typeof Bun.spawn>;
 let requestIp = 1;
 let adminCookie = "";
 let userCookie = "";
+let createdUserId = "";
 const userEmail = `usuario-${crypto.randomUUID()}@example.com`;
 
 async function waitForServer() {
@@ -100,7 +101,7 @@ beforeAll(async () => {
   );
 
   await waitForServer();
-});
+}, 30_000);
 
 afterAll(async () => {
   server?.kill();
@@ -109,7 +110,7 @@ afterAll(async () => {
     rm(`${testDb}-shm`, { force: true }),
     rm(`${testDb}-wal`, { force: true }),
   ]);
-});
+}, 10_000);
 
 describe("seed + admin (integração como browser)", () => {
   test("health check responde", async () => {
@@ -174,6 +175,7 @@ describe("seed + admin (integração como browser)", () => {
     const data = await response.json();
     expect(data.user.email).toBe(userEmail);
     expect(data.user.role).toBe("user");
+    createdUserId = data.user.id;
   });
 
   test("usuário comum não pode criar contas", async () => {
@@ -202,6 +204,37 @@ describe("seed + admin (integração como browser)", () => {
     });
     expect(response.status).toBe(200);
     expect((await response.json()).user.email).toBe(userEmail);
+  });
+
+  test("admin redefine a senha de um usuário", async () => {
+    const response = await browserPost(
+      "/api/auth/admin/set-user-password",
+      { userId: createdUserId, newPassword: "nova-senha-123" },
+      { Cookie: adminCookie },
+    );
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ status: true });
+
+    const oldPassword = await browserPost("/api/auth/sign-in/email", {
+      email: userEmail,
+      password: "senha123456",
+    });
+    expect(oldPassword.status).toBe(401);
+
+    const newPassword = await browserPost("/api/auth/sign-in/email", {
+      email: userEmail,
+      password: "nova-senha-123",
+    });
+    expect(newPassword.status).toBe(200);
+  });
+
+  test("usuário comum não pode alterar a senha de outro usuário", async () => {
+    const response = await browserPost(
+      "/api/auth/admin/set-user-password",
+      { userId: createdUserId, newPassword: "senha-invadida-123" },
+      { Cookie: userCookie },
+    );
+    expect(response.status).toBe(403);
   });
 
   test("origem https://localhost funciona (port-forward)", async () => {

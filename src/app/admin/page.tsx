@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { SiteHeader } from "@/components/site-header";
 import { auth } from "@/lib/auth";
 import { AdminPanel } from "./admin-panel";
 
@@ -15,5 +16,20 @@ export default async function AdminPage() {
     redirect("/sign-in");
   }
 
-  return <AdminPanel adminName={session.user.name} />;
+  return (
+    <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-black">
+      <SiteHeader
+        user={{
+          name: session.user.name,
+          email: session.user.email,
+          role: session.user.role,
+        }}
+        current="admin"
+      />
+      <AdminPanel
+        adminId={session.user.id}
+        adminName={session.user.name}
+      />
+    </div>
+  );
 }

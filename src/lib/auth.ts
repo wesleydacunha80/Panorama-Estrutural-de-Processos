@@ -97,6 +97,7 @@ export const auth = betterAuth({
     customRules: {
       "/sign-in/email": { window: 60, max: 5 },
       "/admin/create-user": { window: 60, max: 10 },
+      "/admin/set-user-password": { window: 60, max: 10 },
     },
   },
   advanced: {

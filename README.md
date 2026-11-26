@@ -5,7 +5,8 @@ Stack instalada com **Bun**:
 - **Next.js 16** (App Router, TypeScript, Tailwind CSS 4)
 - **shadcn/ui** (componentes em `src/components/ui`)
 - **TanStack Query 5** (provider em `src/app/providers.tsx`)
-- **Better Auth 1.7** (e-mail/senha) com Prisma
+- **Better Auth 1.7** (e-mail/senha, somente admin cria contas) com Prisma
+- **Zod 4** (validação dos formulários em `src/lib/validation/auth.ts`)
 - **Prisma 7** + SQLite (adapter libSQL, ideal para Bun)
 
 ## Como executar
@@ -49,10 +50,17 @@ O cadastro público está desabilitado (`emailAndPassword.disableSignUp`). O see
 e-mail a admin **e** sincroniza a senha com `ADMIN_PASSWORD` (a senha fica na
 tabela `account`, não em `user`). A senha inicial está no `.env`.
 
-Somente um admin autenticado pode criar contas:
+Somente um admin autenticado pode gerenciar contas:
 
-- Página `/admin` (protegida no servidor pelo role `admin`) — formulário e lista de usuários.
+- Página `/admin` (protegida no servidor pelo role `admin`) — header com navegação,
+  formulário de criação e lista de usuários com redefinição de senha.
 - API `POST /api/auth/admin/create-user` — exige sessão com permissão `user:create`.
+- API `POST /api/auth/admin/set-user-password` — exige sessão com permissão
+  `user:set-password`.
+
+Na lista de usuários, o botão **Alterar senha** abre um formulário inline com
+nova senha e confirmação. A validação usa `changePasswordSchema` (Zod) e a
+alteração é feita pelo plugin `admin()` do Better Auth.
 
 Rotas de autenticação: `/api/auth/[...all]` (ex.: `GET /api/auth/ok`).
 Páginas: `/sign-in` e `/admin`. A home usa TanStack Query para consultar
@@ -63,7 +71,7 @@ Páginas: `/sign-in` e `/admin`. A home usa TanStack Query para consultar
 ```bash
 bun run build
 bun run lint
-bun run test      # testes de integração (seed, admin, sign-in, sessão, CSRF)
+bun run test      # testes de integração e validação Zod (seed, admin, sessão, CSRF)
 ```
 
 O cliente Better Auth usa a origem atual da página (`createAuthClient()` sem
