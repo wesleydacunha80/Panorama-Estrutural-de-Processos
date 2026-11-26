@@ -168,7 +168,7 @@ export function UsersScreen({ adminId }: { adminId: string }) {
               Atualizar
             </Button>
             <Link
-              href="/admin/usuarios/novo"
+              href="/admin/novo-usuario"
               className={buttonVariants({ size: "sm" })}
             >
               <UserPlus data-icon="inline-start" />

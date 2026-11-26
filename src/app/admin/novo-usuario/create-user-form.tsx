@@ -56,7 +56,7 @@ export function CreateUserForm() {
       }
 
       await queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-      router.push("/admin/usuarios");
+      router.push("/admin");
       router.refresh();
     } catch {
       setError("Não foi possível conectar ao servidor. Tente novamente.");
@@ -70,7 +70,7 @@ export function CreateUserForm() {
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6">
         <div className="flex flex-col gap-3">
           <Link
-            href="/admin/usuarios"
+            href="/admin"
             className={buttonVariants({
               variant: "ghost",
               size: "sm",
@@ -188,7 +188,7 @@ export function CreateUserForm() {
                   {isLoading ? "Registrando..." : "Registrar usuário"}
                 </Button>
                 <Link
-                  href="/admin/usuarios"
+                  href="/admin"
                   className={buttonVariants({ variant: "outline" })}
                 >
                   Cancelar

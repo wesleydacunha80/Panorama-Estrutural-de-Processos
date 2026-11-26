@@ -43,7 +43,16 @@ export default function SignInPage() {
         return;
       }
 
-      router.push("/");
+      const sessionResult = await authClient.getSession();
+      if (sessionResult.error) {
+        setError("Não foi possível carregar a sessão");
+        return;
+      }
+
+      // Admins caem no painel; usuários comuns voltam para a home.
+      router.push(
+        sessionResult.data?.user?.role === "admin" ? "/admin" : "/",
+      );
       router.refresh();
     } catch {
       setError("Não foi possível conectar ao servidor. Tente novamente.");
